@@ -8,6 +8,8 @@ import { getSteamLibraryHandler } from "./tools/steam.js";
 import { getHltbDataHandler } from "./tools/hltb.js";
 import { readReviewsHandler } from "./tools/reviews.js";
 import { scanLocalGamesHandler } from "./tools/scanner.js";
+import { getCriticScoreHandler } from "./tools/opencritic.js";
+import { startSessionHandler } from "./tools/session.js";
 
 const server = new McpServer({
   name: "gaming-assistant",
@@ -61,6 +63,26 @@ server.tool(
   async ({ paths }) => {
     const games = await scanLocalGamesHandler(paths);
     return { content: [{ type: "text", text: JSON.stringify(games, null, 2) }] };
+  }
+);
+
+server.tool(
+  "start_session",
+  "Call this first at the start of every conversation. Returns phase (onboarding/returning), taste model, and an ordered list of next steps with exact tool calls to execute.",
+  {},
+  async () => {
+    const state = startSessionHandler();
+    return { content: [{ type: "text", text: JSON.stringify(state, null, 2) }] };
+  }
+);
+
+server.tool(
+  "get_critic_score",
+  "Get OpenCritic critic score (0–100), tier (Mighty/Strong/Fair/Weak), and review count for a game.",
+  { title: z.string() },
+  async ({ title }) => {
+    const result = await getCriticScoreHandler(title);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   }
 );
 

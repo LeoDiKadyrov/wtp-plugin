@@ -2,3 +2,5 @@ node_modules/
 dist/
 .env
 gaming_profile.json
+.claude/
+package-lock.json

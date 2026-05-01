@@ -21,6 +21,7 @@ It gives Claude direct access to your Steam library, locally installed games, Ob
 | `get_hltb_data` | Get HowLongToBeat completion times for any game |
 | `read_reviews` | Read Markdown notes from an Obsidian vault for taste analysis |
 | `scan_local_games` | Deep-scan local folders: ACF manifests, Epic installs, `.exe` PE headers |
+| `get_critic_score` | Get OpenCritic critic score (0–100), tier, and review count for any game |
 
 ## Requirements
 
@@ -28,7 +29,6 @@ It gives Claude direct access to your Steam library, locally installed games, Ob
 - [Node.js](https://nodejs.org) v20 or later
 - Windows (the `scan_local_games` PE reader uses PowerShell; other tools work cross-platform)
 - Steam Web API key — free at [steamcommunity.com/dev/apikey](https://steamcommunity.com/dev/apikey)
-- RAWG API key (optional, for game name normalization) — free at [rawg.io/apidocs](https://rawg.io/apidocs)
 
 ## Installation
 
@@ -45,7 +45,6 @@ Then add the server to Claude Code:
 claude mcp add "gaming-assistant" -s user \
   -e "STEAM_API_KEY=your_steam_key" \
   -e "STEAM_ID=your_64bit_steam_id" \
-  -e "RAWG_API_KEY=your_rawg_key" \
   -e "PROFILE_PATH=C:/Users/yourname/gaming_profile.json" \
   -- node "$(pwd)/dist/index.js"
 ```
@@ -83,7 +82,6 @@ All config is in environment variables passed to the MCP server:
 |:---|:---|:---|
 | `STEAM_API_KEY` | Yes | Steam Web API key |
 | `STEAM_ID` | Yes | Your 64-bit Steam ID |
-| `RAWG_API_KEY` | No | RAWG key for game name normalization |
 | `PROFILE_PATH` | No | Path to `gaming_profile.json` (default: `./gaming_profile.json`) |
 
 ## Project structure
@@ -98,18 +96,19 @@ src/
     hltb.ts         # get_hltb_data
     reviews.ts      # read_reviews
     scanner.ts      # scan_local_games
+    opencritic.ts   # get_critic_score
   lib/
     steam-api.ts    # Steam Web API client
     acf-parser.ts   # Steam .acf manifest parser
     pe-reader.ts    # Windows .exe PE header reader
-    fuzzy-match.ts  # RAWG-based game name normalization
+    fuzzy-match.ts  # Steam Store game name normalization
 ```
 
 ## Development
 
 ```bash
 npm run build        # Compile TypeScript
-npm test             # Run tests (19 tests)
+npm test             # Run tests (21 tests)
 npm run test:watch   # Watch mode
 ```
 
