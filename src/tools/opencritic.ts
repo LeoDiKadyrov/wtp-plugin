@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { OpenCriticResult } from "../types.js";
 
-const BASE = "https://api.opencritic.com/api";
+const BASE = "https://opencritic-api.p.rapidapi.com";
 
 const TIERS: Record<string, string> = {
   Mighty: "Mighty",
@@ -10,10 +10,19 @@ const TIERS: Record<string, string> = {
   Weak: "Weak",
 };
 
+const rapidApiHeaders = {
+  "x-rapidapi-key": process.env.RAPIDAPI_KEY || "",
+  "x-rapidapi-host": "opencritic-api.p.rapidapi.com",
+};
+
 export async function getCriticScoreHandler(title: string): Promise<OpenCriticResult> {
+  if (!process.env.RAPIDAPI_KEY) {
+    return { title, found: false, score: null, tier: null, review_count: null, url: null };
+  }
+
   const searchRes = await axios.get(`${BASE}/game/search`, {
     params: { criteria: title },
-    headers: { "User-Agent": "gaming-assistant-mcp/1.0" },
+    headers: rapidApiHeaders,
   });
 
   const results: Array<{ id: number; name: string }> = searchRes.data;
@@ -23,7 +32,7 @@ export async function getCriticScoreHandler(title: string): Promise<OpenCriticRe
 
   const best = results[0];
   const gameRes = await axios.get(`${BASE}/game/${best.id}`, {
-    headers: { "User-Agent": "gaming-assistant-mcp/1.0" },
+    headers: rapidApiHeaders,
   });
 
   const g = gameRes.data;

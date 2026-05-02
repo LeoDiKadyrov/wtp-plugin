@@ -16,8 +16,9 @@ It gives Claude direct access to your Steam library, locally installed games, Ob
 
 | Tool | What it does |
 |:---|:---|
+| `start_session` | Detect phase (onboarding/returning), load profile, return ordered next_steps |
 | `manage_profile` | Read / write `gaming_profile.json` — preferences, interview history, library cache |
-| `get_steam_library` | Fetch your Steam games + playtime via Steam Web API |
+| `get_steam_library` | Fetch your Steam games + playtime via Steam Web API (cached) |
 | `get_hltb_data` | Get HowLongToBeat completion times for any game |
 | `read_reviews` | Read Markdown notes from an Obsidian vault for taste analysis |
 | `scan_local_games` | Deep-scan local folders: ACF manifests, Epic installs, `.exe` PE headers |
@@ -60,9 +61,53 @@ claude mcp list
 
 Go to [steamid.io](https://steamid.io), enter your Steam profile URL, and copy the **steamID64** (17-digit number starting with `7656...`).
 
+## Getting started
+
+### First time setup
+
+1. **Start a session**
+   ```
+   Claude: start_session
+   ```
+   Returns onboarding phase, detected status, and next steps.
+
+2. **Load your Steam library**
+   ```
+   Claude: Fetch my Steam library
+   ```
+   Claude calls `get_steam_library` to load games + playtime.
+
+3. **Baseline interview** (if first run)
+   Claude asks 8 questions about your taste:
+   - Last 3 games you genuinely loved
+   - Ideal gaming session (length, mood, solo/co-op)
+   - Favorite genres you keep returning to
+   - Mechanics that kill your interest
+   - Games everyone loves but you bounced off
+   - Priority: story vs systems vs feel
+   - Backlog style (completionist, cherry-picker, casual)
+   - Genres you're curious about
+
+   After each question, Claude extracts preferences and saves them to your profile.
+
+4. **Library analysis**
+   Claude cross-references your taste model against your Steam library and finds:
+   - Unplayed gems matching your vibe
+   - Games worth revisiting (low playtime but high match)
+   - Genre gaps you might explore
+
+5. **Ranked recommendations**
+   Claude produces a prioritized list with HowLongToBeat times and critic scores.
+
+### Recurring usage
+
+After your first interview, Claude detects whether your profile is stale (30+ days) and runs a quick **micro-interview** to refresh your taste model before recommending.
+
 ## Usage examples
 
 Once connected, just talk to Claude:
+
+> *"Start my gaming session"*
 
 > *"Scan my Steam library and tell me which games I've ignored the longest"*
 
